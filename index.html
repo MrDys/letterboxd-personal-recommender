@@ -1,0 +1,331 @@
+<html>
+    <head>
+        <title>Letterboxd Personal Recommender</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+        <style type="text/css">
+            tbody tr:nth-child(odd) {
+                background-color: #202b38;
+                background-color: var(--background-body);
+            }
+            a[href^='mailto\:']::before {
+                content: '' !important;
+            }
+
+            td {
+                padding: 2rem;
+            }
+
+            .spinner {
+                height: 30px;
+                width: 30px;
+                animation: rotation .75s infinite linear;
+                border-left: 10px solid rgba(239, 135, 0, 0.15);
+                border-right: 10px solid rgba(239, 135, 0, 0.15);
+                border-bottom: 10px solid rgba(239, 135, 0, 0.15);
+                border-top: 10px solid rgba(239, 135, 0, 0.8);
+                border-radius: 100%;
+            }
+
+            @keyframes rotation {
+                from {transform: rotate(0deg);}
+                to {transform: rotate(359deg);}
+            }
+
+            .modal-window {
+                position: fixed;
+                background-color: rgba(0, 0, 0, 0.25);
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 999;
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.3s;
+            }
+
+            .modal-window:target {
+                visibility: visible;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .modal-window > div {
+                width: 400px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 2em;
+                background: white;
+            }
+
+            .modal-window > div > h1 {
+                color: var(--background-body);
+                text-align: center;
+            }
+
+            .center {
+                margin: auto;
+            }
+
+            .stars {
+                color: #00c030;
+            }
+
+            .heart {
+                color: #ee7000;
+            }
+        </style>
+        <script id="template-matches-header" type="text/template">
+            <table>
+                <tbody>
+        </script>
+        <script id="template-matches-footer" type="text/template">
+                </tbody>
+            </table>
+        </script>
+        <script id="template-matches-row" type="text/template">
+            <tr>
+                <td>
+                    <a href="https://www.letterboxd.com/{{url}}">
+                        {{name}}
+                    </a> <span class="stars">{{rating}}</span> <span class="heart">{{heart}}</span>
+                </td>
+            </tr>
+        </script>
+    </head>
+    <body>
+        <h1><img src="img/logo.png" style="width:5%;margin-right:1em">Letterboxd Personal Recommender</h1>
+        <blockquote>
+            They always seemed what? They always seemed really great is what they always seemed. They picked up where your precious Echo left off and you're sitting around complaining about no more Echo albums. I can't believe you don't own this fucking record. That's insane! Jesus!
+            <footer>
+                <cite>High Fidelity, 2000</cite>
+            </footer>
+        </blockquote>
+        <h2>What is this thing?</h2>
+        <p>
+            This little gizmo allows one Letterboxd member compare notes, as it were, with another Letterboxd member. "Show me all of the movies I've rated 4 stars or more that they haven't seen," basically. My hope is that it makes personal recommendations between users slightly easier.
+        </p>
+        <h2>How to use</h2>
+        <p>
+            Fill out the form below. In most cases, Recommender is going to be you. Fiddle with the other settings. Click Run.
+        </p>
+        <form action="javascript:void(0);" id="the_form">
+            <label for="recommender">Recommender Letterboxd Account Name</label>
+            <input type="text" name="recommender" id="recommender" placeholder="">
+            <label for="recommendee">Recommendee Letterboxd Account Name</label>
+            <input type="text" name="recommendee" id="recommendee" placeholder="">
+            <label for="rating">Star Rating</label>
+            <select name="rating" id="rating">
+                <option value="0">Any Rating</option>
+                <option value="1">&half; and up</option>
+                <option value="2">&#9733; and up</option>
+                <option value="3">&#9733;&half; and up</option>
+                <option value="4">&#9733;&#9733; and up</option>
+                <option value="5">&#9733;&#9733;&half; and up</option>
+                <option value="6">&#9733;&#9733;&#9733; and up</option>
+                <option value="7">&#9733;&#9733;&#9733;&half; and up</option>
+                <option value="8">&#9733;&#9733;&#9733;&#9733; and up</option>
+                <option value="9">&#9733;&#9733;&#9733;&#9733;&half; and up</option>
+                <option value="10">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+            </select>
+            <input type="checkbox" name="liked" id="liked">
+            <label for="liked"><span class="heart">&#9829;</span> Liked</label><br>
+            <select name="logic" id="logic">
+                <option value="or">Either Rating or Liked</option>
+                <option value="and">Both Rating and Liked</option>
+            </select>
+
+            <input type="submit" value="Run" class="btn"/>
+        </form>
+        <div id="results"></div>
+       
+        <br>
+        <br>
+        <br>
+        <hr>
+        <h2>Credits</h2>
+        <p>
+            Project by <strong>Sean Hannan</strong>. <a href="mailto:seanphannan@gmail.com">Email</a> | <a href="https://twitter.com/MrDys">Twitter</a> | <a href="https://letterboxd.com/MrDys/">Letterboxd</a> | <a href="https://github.com/MrDys">GitHub</a>
+        </p>
+        <p>
+            Uses elements from <a href="https://letterboxd.com">Letterboxd</a>. <a href="https://letterboxd.com/about/pro/">Support those fine folks.</a> They are good people.
+        </p>
+        <div>
+            <div>
+              <a id="open" href="#open-modal"></a>
+            </div>
+          <div id="open-modal" class="modal-window">
+            <div>
+              <a href="#results" id="close" style="display:none" title="Close">Close</a>
+              <h1>Loading Data</h1>
+              <div class="spinner center"></div>
+            </div>
+          </div>
+        </div>
+        <div id="watched" style="display:none"></div>
+        <script type="text/javascript">
+            function loadData() {
+                const recommender = document.getElementById('recommender').value;
+                const recommendee = document.getElementById('recommendee').value;
+
+                // Display "Data Loading"
+                document.getElementById('open').click();
+                var promises = [];
+
+                if (!sessionStorage.getItem(recommender)) {
+                    promises.push(fetch('https://yo2reywopjp2cyqgbdx54264f40jpdxr.lambda-url.us-east-1.on.aws/?user=' + recommender)
+                        .then((response) => response.text())
+                        .then((data) => sessionStorage.setItem(recommender, data)));
+                }
+
+                if (!sessionStorage.getItem(recommendee)) {
+                    promises.push(fetch('https://yo2reywopjp2cyqgbdx54264f40jpdxr.lambda-url.us-east-1.on.aws/?user=' + recommendee)
+                        .then((response) => response.text())
+                        .then((data) => sessionStorage.setItem(recommendee, data)));
+                }
+
+                Promise.allSettled(promises).then(function() {
+                    // Hide "Data Loading" message
+                    document.getElementById('close').click();
+                    recommenderData = JSON.parse(sessionStorage.getItem(recommender));
+                    recommendeeData = JSON.parse(sessionStorage.getItem(recommendee));
+                    performComparison(recommenderData, recommendeeData);
+                });
+
+            }
+
+            function addIdKey(data) {
+                var idArray = [];
+                for (const row of data) {
+                    idArray[row.id] = row;
+                }
+
+                return idArray;
+            }
+
+            function filterRecommenderData(recommenderData) {
+                // Filter recommender data
+                const rating = document.getElementById('rating').value;
+                const liked = document.getElementById('liked').checked;
+                const logic = document.getElementById('logic').value;
+
+                var filteredData = [];                
+                for (const row of recommenderData) {
+                    var ratingCheck = false;
+                    var likedCheck = false;
+
+                    if (row.rating >= rating) {
+                        ratingCheck = true;
+                    }
+
+                    if (row.heart === 1) {
+                        likedCheck = true;
+                    }
+
+                    if (liked) {
+                        if (logic === "or" && (ratingCheck || likedCheck )) {
+                            filteredData.push(row);
+                        }
+
+                        if (logic === "and" && (ratingCheck && likedCheck)) {
+                            filteredData.push(row);
+                        }
+                    } else if (ratingCheck) {
+                        filteredData.push(row);
+                    }
+
+                }
+
+                return filteredData;
+            }
+
+            // Sorts results by star rating descending, secondarily ordered by like status.
+            function sortResults(results) {
+                return results.sort((a, b)=> {
+                    if (a.rating === b.rating){
+                        return a.heart > b.heart ? -1 : 1
+                    } else {
+                        return a.rating > b.rating ? -1 : 1
+                    }
+                });
+            }
+
+            function getStars(rating) {
+                switch (rating) {
+                    case 0:
+                        return '';
+                    case 1:
+                        return '&half;';
+                    case 2:
+                        return '&#9733;';
+                    case 3:
+                        return '&#9733;&half;';
+                    case 4:
+                        return '&#9733;&#9733;';
+                    case 5:
+                        return '&#9733;&#9733;&half;';
+                    case 6:
+                        return '&#9733;&#9733;&#9733;';
+                    case 7:
+                        return '&#9733;&#9733;&#9733;&half;';
+                    case 8:
+                        return '&#9733;&#9733;&#9733;&#9733;';
+                    case 9:
+                        return '&#9733;&#9733;&#9733;&#9733;&half;';
+                    case 10:
+                        return '&#9733;&#9733;&#9733;&#9733;&#9733;';
+                }
+            }
+
+            function getHeart(heart) {
+                console.log(heart);
+                if (heart) {
+                    return '&#9829;';
+                }
+
+                return '';
+            }
+
+            function performComparison(recommenderData, recommendeeData) {
+                filteredRecommenderData = filterRecommenderData(recommenderData);
+                recommendeeData = addIdKey(recommendeeData);
+
+                recommended = [];
+                for (const row of filteredRecommenderData) {
+                    if (typeof recommendeeData[row.id] === 'undefined') {
+                        recommended.push(row);
+                    }
+                }
+
+                sortedRecommendations = sortResults(recommended);
+
+                if (sortedRecommendations.length === 0) {
+                    document.getElementById("results").innerHTML = "<h2>No matches, sorry.</h2>";
+                } else {
+                    // Template it out
+                    var header_html = document.getElementById('template-matches-header').innerHTML;
+                    var footer_html = document.getElementById('template-matches-footer').innerHTML;
+                    var row_html = document.getElementById('template-matches-row').innerHTML;
+
+                    var results_html = header_html;
+
+                    for (var key in sortedRecommendations) {
+                        results_html += row_html.replace(/{{url}}/g, sortedRecommendations[key]['url'])
+                                                .replace(/{{name}}/g, sortedRecommendations[key]['name'])
+                                                .replace(/{{rating}}/g, getStars(sortedRecommendations[key]['rating']))
+                                                .replace(/{{heart}}/g, getHeart(sortedRecommendations[key]['heart']));;
+                    }
+                    results_html += footer_html;
+
+                    // Replace the HTML of #list with final HTML
+                    document.getElementById("results").innerHTML = results_html;
+                }
+            }
+
+            document.getElementById('the_form').addEventListener('submit', loadData, false);
+          </script>
+    </body>
+</html>
