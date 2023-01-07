@@ -182,13 +182,13 @@
                 var promises = [];
 
                 if (!sessionStorage.getItem(recommender)) {
-                    promises.push(fetch('https://yo2reywopjp2cyqgbdx54264f40jpdxr.lambda-url.us-east-1.on.aws/?user=' + recommender)
+                    promises.push(fetch('https://wvgy75enhw653epvfmqnt7j5au0pnwdb.lambda-url.us-east-1.on.aws/?user=' + recommender)
                         .then((response) => response.text())
                         .then((data) => sessionStorage.setItem(recommender, data)));
                 }
 
                 if (!sessionStorage.getItem(recommendee)) {
-                    promises.push(fetch('https://yo2reywopjp2cyqgbdx54264f40jpdxr.lambda-url.us-east-1.on.aws/?user=' + recommendee)
+                    promises.push(fetch('https://wvgy75enhw653epvfmqnt7j5au0pnwdb.lambda-url.us-east-1.on.aws/?user=' + recommendee)
                         .then((response) => response.text())
                         .then((data) => sessionStorage.setItem(recommendee, data)));
                 }
