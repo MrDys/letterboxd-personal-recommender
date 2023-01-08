@@ -367,7 +367,7 @@
                 let rows = JSON.parse(sessionStorage.getItem('recommendations'));
                 let csvContent = "data:text/csv;charset=utf-8," 
                     + "Name, URL, Rating, Heart\n"
-                    + rows.map(e => [e.name, "https://letterboxd.com" + e.link, getStarsUnicode(e.rating), e.heart ? '♥' : '']).join("\n");
+                    + rows.map(e => ['"' + e.name + '"', "https://letterboxd.com" + e.url, getStarsUnicode(e.rating), e.heart ? '♥' : '']).join("\n");
 
                 var encodedUri = encodeURI(csvContent);
                 var link = document.createElement("a");
