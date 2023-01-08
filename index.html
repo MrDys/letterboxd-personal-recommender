@@ -341,7 +341,7 @@
                     sessionStorage.removeItem('recommendations');
                     document.getElementById("results").innerHTML = "<h2>No matches, sorry.</h2>";
                 } else {
-                    sessionStorage.setItem('recommendations', sortedRecommendations);
+                    sessionStorage.setItem('recommendations', JSON.stringyify(sortedRecommendations));
                     // Template it out
                     var header_html = document.getElementById('template-matches-header').innerHTML;
                     var footer_html = document.getElementById('template-matches-footer').innerHTML;
@@ -364,7 +364,7 @@
             }
 
             function downloadCSV() {
-                let rows = sessionStorage.getItem('recommendations');
+                let rows = JSON.parse(sessionStorage.getItem('recommendations'));
                 let csvContent = "data:text/csv;charset=utf-8," 
                     + "Name, URL, Rating, Heart\n"
                     + rows.map(e => [e.name, "https://letterboxd.com" + e.link, getStarsUnicode(e.rating), e.heart ? '♥' : '']).join("\n");
