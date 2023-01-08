@@ -85,6 +85,9 @@
         <script id="template-matches-header" type="text/template">
             <table>
                 <tbody>
+                    <tr>
+                        <td><button id="download">Download CSV</button></td>
+                    </tr>
         </script>
         <script id="template-matches-footer" type="text/template">
                 </tbody>
@@ -285,6 +288,33 @@
                         return '&#9733;&#9733;&#9733;&#9733;&#9733;';
                 }
             }
+            
+            function getStarsUnicode(rating) {
+                switch (rating) {
+                    case 0:
+                        return '';
+                    case 1:
+                        return '½';
+                    case 2:
+                        return '★';
+                    case 3:
+                        return '★½';
+                    case 4:
+                        return '★★';
+                    case 5:
+                        return '★★½';
+                    case 6:
+                        return '★★★';
+                    case 7:
+                        return '★★★½';
+                    case 8:
+                        return '★★★★';
+                    case 9:
+                        return '★★★★½';
+                    case 10:
+                        return '★★★★★';
+                }
+            }            
 
             function getHeart(heart) {
                 if (heart) {
@@ -308,8 +338,10 @@
                 sortedRecommendations = sortResults(recommended);
 
                 if (sortedRecommendations.length === 0) {
+                    sessionStorage.removeItem('recommendations');
                     document.getElementById("results").innerHTML = "<h2>No matches, sorry.</h2>";
                 } else {
+                    sessionStorage.setItem('recommendations', sortedRecommendations);
                     // Template it out
                     var header_html = document.getElementById('template-matches-header').innerHTML;
                     var footer_html = document.getElementById('template-matches-footer').innerHTML;
@@ -330,7 +362,24 @@
                 }
             }
 
+            function downloadCSV() {
+                let rows = sessionStorage.getItem('recommendations');
+                let csvContent = "data:text/csv;charset=utf-8," 
+                    + "Name, URL, Rating, Heart\n"
+                    + rows.map(e => [e.name, "https://letterboxd.com" + e.link, getStarsUnicode(e.rating), e.heart ? '♥' : '']).join("\n");
+
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "recommendations.csv");
+                document.body.appendChild(link); // Required for FF
+
+                link.click();
+                link.remove();
+            }
+            
             document.getElementById('the_form').addEventListener('submit', loadData, false);
+            document.getElementById('download').addEventListener('click', downloadCSV, false);
           </script>
     </body>
 </html>
