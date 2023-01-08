@@ -86,7 +86,7 @@
             <table>
                 <tbody>
                     <tr>
-                        <td><button id="download">Download CSV</button></td>
+                        <td><button id="download" style="float:right">Download CSV</button></td>
                     </tr>
         </script>
         <script id="template-matches-footer" type="text/template">
@@ -359,6 +359,7 @@
 
                     // Replace the HTML of #list with final HTML
                     document.getElementById("results").innerHTML = results_html;
+                    document.getElementById('download').addEventListener('click', downloadCSV, false);
                 }
             }
 
@@ -379,7 +380,6 @@
             }
             
             document.getElementById('the_form').addEventListener('submit', loadData, false);
-            document.getElementById('download').addEventListener('click', downloadCSV, false);
           </script>
     </body>
 </html>
